@@ -133,3 +133,6 @@ dmypy.json
 # UV
 .venv/
 uv.lock
+
+# skill-check-agent progress
+.skill_check_progress.json

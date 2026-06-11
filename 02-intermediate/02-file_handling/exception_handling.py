@@ -1,7 +1,9 @@
 """
-Exception Handling — File Handling / General
-=============================================
-Covers: try/except/else/finally, raising, custom exceptions, chaining
+Exception Handling — Complete Guide
+=====================================
+Ref: https://docs.python.org/3/tutorial/errors.html
+Covers: try/except/else/finally, raising, custom exceptions, chaining,
+        ExceptionGroup (3.11+), except* (3.11+), add_note() (3.11+)
 """
 
 # ─── 1. Basic try/except ──────────────────────────────────────────────────────
@@ -129,9 +131,90 @@ print(safe_divide(10, 2))    # 5.0
 print(safe_divide(10, 0))    # None (logged)
 
 
+# ─── 8. ExceptionGroup and except* (Python 3.11+) ────────────────────────────
+# Ref: https://docs.python.org/3/tutorial/errors.html#raising-and-handling-multiple-unrelated-exceptions
+#
+# ExceptionGroup bundles multiple unrelated exceptions together.
+# except* handles specific exception types from the group while
+# letting others propagate — essential for async/concurrent error handling.
+
+import sys
+
+if sys.version_info >= (3, 11):
+    # Raise multiple unrelated exceptions at once
+    def validate_user(data: dict) -> None:
+        errors = []
+        if not data.get("name"):
+            errors.append(ValueError("name is required"))
+        if not isinstance(data.get("age"), int):
+            errors.append(TypeError("age must be an integer"))
+        if data.get("age", 0) < 0:
+            errors.append(ValueError("age must be non-negative"))
+        if errors:
+            raise ExceptionGroup("validation errors", errors)
+
+    try:
+        validate_user({"name": "", "age": "thirty"})
+    except* ValueError as eg:
+        print(f"Value errors ({len(eg.exceptions)}): {[str(e) for e in eg.exceptions]}")
+    except* TypeError as eg:
+        print(f"Type errors ({len(eg.exceptions)}): {[str(e) for e in eg.exceptions]}")
+
+    # Nested ExceptionGroups
+    nested = ExceptionGroup("outer", [
+        ValueError("v1"),
+        ExceptionGroup("inner", [TypeError("t1"), KeyError("k1")]),
+    ])
+    # except* flattens the group and matches by type at any nesting level
+    try:
+        raise nested
+    except* (ValueError, TypeError) as eg:
+        print(f"Caught: {eg.exceptions}")
+
+else:
+    print("ExceptionGroup requires Python 3.11+")
+
+
+# ─── 9. Enriching Exceptions with Notes (Python 3.11+) ───────────────────────
+# Ref: https://docs.python.org/3/tutorial/errors.html#enriching-exceptions-with-notes
+#
+# add_note() attaches supplementary context to ANY existing exception.
+# Notes appear in the traceback and are stored in exception.__notes__.
+
+if sys.version_info >= (3, 11):
+    try:
+        try:
+            raise ValueError("disk full")
+        except ValueError as e:
+            e.add_note("Occurred while processing upload: report.csv")
+            e.add_note("Free up disk space and retry.")
+            raise
+    except ValueError as e:
+        print(f"Exception: {e}")
+        print(f"Notes: {e.__notes__}")   # ['Occurred while...', 'Free up...']
+
+    # Useful pattern: add context in except blocks before re-raising
+    def process_batch(items: list) -> None:
+        for i, item in enumerate(items):
+            try:
+                int(item)   # will fail on non-numeric items
+            except ValueError as e:
+                e.add_note(f"Failed at item index {i}: {item!r}")
+                raise
+
+    try:
+        process_batch(["1", "2", "abc", "4"])
+    except ValueError as e:
+        print(e, getattr(e, "__notes__", []))
+
+else:
+    print("add_note() requires Python 3.11+")
+
+
 # ─── Exercises ────────────────────────────────────────────────────────────────
 # TODO 1: Create a custom exception hierarchy for a bank account (InsufficientFunds, etc.)
 # TODO 2: Write a retry decorator that catches an exception and retries N times.
-# TODO 3: Parse a CSV file and collect ALL errors without stopping (collect errors, report at end).
+# TODO 3: Parse a CSV file and collect ALL errors without stopping; use ExceptionGroup to raise them all.
 # TODO 4: Implement safe_cast(value, target_type, default) using exceptions.
-# TODO 5: Write a context manager that suppresses only specific exceptions.
+# TODO 5: Use add_note() to enrich a FileNotFoundError with the full config path that was attempted.
+

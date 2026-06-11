@@ -256,6 +256,81 @@ Use this to track your preparation:
 - Solve interview problems
 - Review weak areas
 
+## 🤖 skill-check-agent — Automated Skill Assessment
+
+Test your Python knowledge interactively, topic by topic, level by level. The agent tracks your progress, enforces a 70% pass threshold per topic, and automatically unlocks the next level when you've mastered the current one.
+
+### Setup
+
+```bash
+# Activate your virtual environment first
+uv venv && .venv\Scripts\activate   # Windows
+# or: source .venv/bin/activate     # macOS/Linux
+
+# Install the package in editable mode (registers the CLI entry point)
+uv pip install -e .
+```
+
+### Usage
+
+```bash
+# Run overall quiz at your current level (default behaviour)
+skill-check-agent
+
+# Quiz all topics in a specific level
+skill-check-agent --level beginner
+skill-check-agent --level intermediate
+skill-check-agent --level advanced
+
+# Quiz a single topic within a level
+skill-check-agent --level beginner    --topic basics
+skill-check-agent --level beginner    --topic control_flow
+skill-check-agent --level beginner    --topic functions
+skill-check-agent --level intermediate --topic data_structures
+skill-check-agent --level intermediate --topic oop_basics
+skill-check-agent --level advanced    --topic decorators
+skill-check-agent --level advanced    --topic type_hints
+
+# Show your current progress and scores
+skill-check-agent --status
+
+# List all available levels and topics
+skill-check-agent --list
+
+# Reset all progress and start over
+skill-check-agent --reset
+```
+
+> You can also invoke it without installing: `python -m skill_check_agent [options]`
+
+### How It Works
+
+| Concept | Detail |
+|---|---|
+| **Question bank** | 65 MCQ questions across 15 topics and 3 levels |
+| **Pass threshold** | 70% per topic to mark it as passed |
+| **Level advancement** | All topics in a level must be passed → unlocks next level |
+| **Progress persistence** | Scores saved to `.skill_check_progress.json` (gitignored) |
+| **Quiz sampling** | 5 questions per topic per session (randomised from full bank) |
+
+### Topics Covered
+
+| Level | Topics |
+|---|---|
+| **Beginner** | basics, control_flow, functions |
+| **Intermediate** | data_structures, file_handling, oop_basics, modules_packages, standard_library |
+| **Advanced** | decorators, generators, async_programming, type_hints, dataclasses, testing, design_patterns |
+
+### Advancement Flow
+
+```
+BEGINNER (pass all 3 topics at 70%+)
+    └── unlocks INTERMEDIATE (pass all 5 topics at 70%+)
+            └── unlocks ADVANCED
+```
+
+---
+
 ## 🔗 Useful Resources
 
 - **Problem Solving:** [LeetCode](https://leetcode.com/), [HackerRank](https://www.hackerrank.com/)

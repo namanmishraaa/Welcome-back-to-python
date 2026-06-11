@@ -1,0 +1,19 @@
+[project]
+name = "welcome-back-to-python"
+version = "1.0.0"
+description = "Comprehensive Python skills refresher with interview preparation focus"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [{name = "Learning Project"}]
+license = {text = "MIT"}
+
+[tool.uv]
+managed = true
+
+[dependency-groups]
+dev = [
+    "pytest>=7.0.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+]

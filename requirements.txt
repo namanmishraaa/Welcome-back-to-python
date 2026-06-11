@@ -1,0 +1,19 @@
+# Requirements for Welcome Back to Python
+
+# Testing
+pytest>=7.0.0
+
+# Code Quality
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.0.0
+
+# Data Processing (for advanced/projects)
+requests>=2.31.0
+
+# Async Support (for advanced projects)
+aiohttp>=3.9.0
+
+# Data Analysis (optional, for advanced projects)
+# pandas>=2.0.0
+# numpy>=1.24.0
